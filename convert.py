@@ -25,7 +25,15 @@ full_html = f'''<!DOCTYPE html>
             tex: {{
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                processEscapes: true
+                processEscapes: true,
+                tags: 'ams'
+            }},
+            options: {{
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }},
+            loader: {{
+                load: ['[tex]/ams']
             }}
         }};
     </script>
