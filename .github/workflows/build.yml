@@ -1,1 +1,57 @@
+name: Build and Deploy Markdown
 
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install markdown
+      - name: Convert MD to HTML
+        run: |
+          for file in *.md; do
+            if [ "$file" != "README.md" ]; then
+              base=$(basename "$file" .md)
+              python -c "
+import markdown
+with open('$file', 'r', encoding='utf-8') as f:
+    html = markdown.markdown(f.read(), extensions=['fenced_code', 'tables'])
+with open('$base.html', 'w', encoding='utf-8') as f:
+    f.write(f'''<!DOCTYPE html>
+<html>
+<head><meta charset=\"utf-8\"><title>$base</title>
+<style>
+body {{ max-width: 900px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }}
+pre {{ background: #f4f4f4; padding: 10px; }}
+.math {{ font-size: 1.1em; }}
+</style>
+<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js\"></script>
+</head>
+<body>
+{html}
+</body>
+</html>''')
+"
+            fi
+          done
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - uses: actions/deploy-pages@v4
