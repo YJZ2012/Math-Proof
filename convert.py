@@ -20,7 +20,16 @@ full_html = f'''<!DOCTYPE html>
         pre {{ background: #f4f4f4; padding: 10px; overflow-x: auto; }}
         code {{ background: #f4f4f4; padding: 2px 4px; }}
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+    <script>
+        MathJax = {{
+            tex: {{
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            }}
+        }};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
 </head>
 <body>
 {html}
