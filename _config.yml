@@ -1,3 +1,2 @@
-# _config.yml
 markdown: kramdown
-theme: jekyll-theme-minimal
+permalink: /:title/
