@@ -24,33 +24,9 @@ jobs:
       
       - name: Convert MD to HTML
         run: |
-          shopt -s nullglob
           for file in *.md; do
             if [ "$file" != "README.md" ]; then
-              base=$(basename "$file" .md)
-              python3 -c "
-import markdown
-with open('$file', 'r', encoding='utf-8') as f:
-    content = f.read()
-html = markdown.markdown(content, extensions=['fenced_code', 'tables'])
-with open('$base.html', 'w', encoding='utf-8') as f:
-    f.write('''<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8'>
-    <title>$base</title>
-    <style>
-        body {{ max-width: 900px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; line-height: 1.6; }}
-        pre {{ background: #f4f4f4; padding: 10px; overflow-x: auto; }}
-        code {{ background: #f4f4f4; padding: 2px 4px; }}
-    </style>
-    <script src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js'></script>
-</head>
-<body>
-{html}
-</body>
-</html>''')
-"
+              python convert.py "$file"
             fi
           done
       
@@ -60,4 +36,4 @@ with open('$base.html', 'w', encoding='utf-8') as f:
         with:
           path: .
       
-      - uses:/actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
