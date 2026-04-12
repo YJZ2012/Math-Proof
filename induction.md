@@ -54,13 +54,15 @@ $$ \begin{aligned}
 
 由 $(a+b)^3 = a^3 + 3a^2b + 3ab^2 + b^3$ 可知，
 
-$$ \begin{aligned}
+$$
+\begin{align*}
 (1+0)^3 &= 1^3 + 3 \times 1^2 \times 0 + 3 \times 1 \times 0^2 + 0^3 \\
 (1+1)^3 &= 1^3 + 3 \times 1^2 \times 1 + 3 \times 1 \times 1^2 + 1^3 \\
 (1+2)^3 &= 1^3 + 3 \times 1^2 \times 2 + 3 \times 1 \times 2^2 + 2^3 \\
 &\;\;\vdots \\
 (1+n)^3 &= 1^3 + 3 \times 1^2 \times n + 3 \times 1 \times n^2 + n^3
-\end{aligned} $$
+\end{align*}
+$$
 
 将上述式子相加，便有：
 $$ \sum_{i=1}^{n} i^3 = n + 1 + 3\sum_{i=1}^{n} i + 3\sum_{i=1}^{n} i^2 + \sum_{i=1}^{n} i^3 $$
