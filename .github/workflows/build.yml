@@ -33,7 +33,7 @@ with open('$file', 'r', encoding='utf-8') as f:
     content = f.read()
 html = markdown.markdown(content, extensions=['fenced_code', 'tables'])
 with open('$base.html', 'w', encoding='utf-8') as f:
-    f.write(f'''<!DOCTYPE html>
+    f.write("""<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -48,7 +48,7 @@ with open('$base.html', 'w', encoding='utf-8') as f:
 <body>
 {html}
 </body>
-</html>''')
+</html>""")
 EOF
             fi
           done
