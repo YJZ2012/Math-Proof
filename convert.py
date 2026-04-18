@@ -9,20 +9,44 @@ base = os.path.splitext(file)[0]
 with open(file, 'r', encoding='utf-8') as f:
     content = f.read()
 
-# 预处理：将 $$ \begin{aligned} ... \end{aligned} $$ 包裹的公式单独处理
-# 避免 markdown 库破坏 LaTeX 语法
-def process_aligned(match):
+# --- 关键步骤：保护所有 LaTeX 公式块 ---
+# 1. 保护行间公式 $$ ... $$
+def protect_display_math(match):
     inner = match.group(1)
-    # 确保换行符被保留
-    inner = inner.replace('\\\\', '\\\\\\\\')
-    return f'<div class="math-block">\\[\\begin{{aligned}}{inner}\\end{{aligned}}\\]</div>'
+    # 将内部的换行符和反斜杠保护起来，避免被后续处理破坏
+    inner = inner.replace('\\', '\\\\')
+    # 使用一个特殊标记来包裹，并保留原始格式
+    return f'<display-math>\n\\[\n{inner}\n\\]\n</display-math>'
 
-# 匹配 $$ \begin{aligned} ... \end{aligned} $$ 模式
-pattern = r'\$\$\s*\\begin\{aligned\}(.*?)\\end\{aligned\}\s*\$\$'
-content = re.sub(pattern, process_aligned, content, flags=re.DOTALL)
+content = re.sub(r'\$\$(.*?)\$\$', protect_display_math, content, flags=re.DOTALL)
 
-# 使用 markdown 转换
+# 2. 保护行间公式 \[ ... \]
+def protect_display_math_bracket(match):
+    inner = match.group(1)
+    inner = inner.replace('\\', '\\\\')
+    return f'<display-math>\n\\[\n{inner}\n\\]\n</display-math>'
+
+content = re.sub(r'\\\[(.*?)\\\]', protect_display_math_bracket, content, flags=re.DOTALL)
+
+# 3. 保护行内公式 $...$ (可选，但为了避免意外，也做简单保护)
+def protect_inline_math(match):
+    inner = match.group(1)
+    inner = inner.replace('\\', '\\\\')
+    return f'<inline-math>{inner}</inline-math>'
+
+content = re.sub(r'\$(.*?)\$', protect_inline_math, content, flags=re.DOTALL)
+
+# --- 现在让 markdown 库处理非公式内容 ---
 html = markdown.markdown(content, extensions=['fenced_code', 'tables', 'md_in_html'])
+
+# --- 恢复被保护的 LaTeX 代码 ---
+# 将保护标记还原为正常的 LaTeX 语法
+html = html.replace('<display-math>', '')
+html = html.replace('</display-math>', '')
+html = html.replace('<inline-math>', '$')
+html = html.replace('</inline-math>', '$')
+# 修复被过度转义的反斜杠
+html = html.replace('\\\\', '\\')
 
 # 完整的 HTML 模板，包含正确的 MathJax 配置
 full_html = f'''<!DOCTYPE html>
@@ -56,11 +80,6 @@ full_html = f'''<!DOCTYPE html>
             overflow-x: auto;
             margin: 1em 0;
         }}
-        /* 公式内部样式 */
-        .MathJax {{
-            font-size: 1.05em;
-        }}
-        /* 让 aligned 环境中的公式更紧凑 */
         mjx-container[jax="CHTML"][display="true"] {{
             margin: 0.5em 0;
         }}
@@ -91,7 +110,6 @@ full_html = f'''<!DOCTYPE html>
 </body>
 </html>'''
 
-# 写入 HTML 文件
 with open(f'{base}.html', 'w', encoding='utf-8') as f:
     f.write(full_html)
 
